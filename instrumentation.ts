@@ -12,14 +12,27 @@ import {
 
 const tracerProvider = new BasicTracerProvider();
 
+console.log("Adding ConsoleSpanExporter");
 tracerProvider.addSpanProcessor(
   new SimpleSpanProcessor(new ConsoleSpanExporter())
 );
 
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-grpc";
+console.log("Adding OTLPTraceExporter");
 tracerProvider.addSpanProcessor(
   new SimpleSpanProcessor(new OTLPTraceExporter())
 );
+
+import { AzureMonitorTraceExporter } from "@azure/monitor-opentelemetry-exporter";
+try {
+  console.log("Adding AzureMonitorTraceExporter")
+  tracerProvider.addSpanProcessor(
+    new SimpleSpanProcessor(new AzureMonitorTraceExporter())
+  )
+}
+catch (error) {
+  console.log(error);
+}
 
 trace.setGlobalTracerProvider(tracerProvider);
 
