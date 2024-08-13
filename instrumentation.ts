@@ -3,14 +3,15 @@
 // diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG);
 
 // Trace
-import { trace } from "@opentelemetry/api";
 import {
-  BasicTracerProvider,
+//  BasicTracerProvider,
   ConsoleSpanExporter,
   SimpleSpanProcessor,
 } from "@opentelemetry/sdk-trace-base";
+import { NodeTracerProvider } from "@opentelemetry/sdk-trace-node";
 
-const tracerProvider = new BasicTracerProvider();
+// const tracerProvider = new BasicTracerProvider();
+const tracerProvider = new NodeTracerProvider();
 
 console.log("Adding ConsoleSpanExporter");
 tracerProvider.addSpanProcessor(
@@ -34,7 +35,7 @@ catch (error) {
   console.log(error);
 }
 
-trace.setGlobalTracerProvider(tracerProvider);
+tracerProvider.register();
 
 
 // Logs

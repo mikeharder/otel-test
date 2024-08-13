@@ -1,4 +1,4 @@
-import { context, Span, trace } from "@opentelemetry/api";
+import { Span, trace } from "@opentelemetry/api";
 import { logs, SeverityNumber } from "@opentelemetry/api-logs";
 
 async function main() {
@@ -9,7 +9,8 @@ async function main() {
 
   while (true) {
     await tracer.startActiveSpan("main loop", async (parentSpan: Span) => {
-      const ctx = trace.setSpan(context.active(), parentSpan);
+      // Only needed when using BasicTracerProvider
+      // const ctx = trace.setSpan(context.active(), parentSpan);
 
       // emit a log record
       logger.emit({
@@ -17,10 +18,12 @@ async function main() {
         severityText: "INFO",
         body: "this is a log record body",
         attributes: { "log.type": "custom" },
-        context: ctx
+        // Only needed when using BasicTracerProvider
+        // context: ctx
       });
 
-      await tracer.startActiveSpan("sleep", {}, ctx, async (span: Span) => {
+      // ctx only needed when using BasicTracerProvider
+      await tracer.startActiveSpan("sleep", /*{}, ctx,*/ async (span: Span) => {
         await new Promise((r) => setTimeout(r, 2000));
         span.end();
       });
