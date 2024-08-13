@@ -47,13 +47,26 @@ import {
 
 const loggerProvider = new LoggerProvider();
 
+console.log("Adding ConsoleLogRecordExporter");
 loggerProvider.addLogRecordProcessor(
   new SimpleLogRecordProcessor(new ConsoleLogRecordExporter())
 );
 
 import { OTLPLogExporter } from "@opentelemetry/exporter-logs-otlp-grpc";
+console.log("Adding OTLPLogExporter");
 loggerProvider.addLogRecordProcessor(
   new SimpleLogRecordProcessor(new OTLPLogExporter())
 );
+
+import { AzureMonitorLogExporter } from "@azure/monitor-opentelemetry-exporter";
+try {
+  console.log("Adding AzureMonitorLogExporter")
+  loggerProvider.addLogRecordProcessor(
+    new SimpleLogRecordProcessor(new AzureMonitorLogExporter())
+  )
+}
+catch (error) {
+  console.log(error);
+}
 
 logs.setGlobalLoggerProvider(loggerProvider);
