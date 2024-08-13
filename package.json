@@ -4,7 +4,7 @@
   "exports": "./index.js",
   "scripts": {
     "build": "tsc",
-    "start": "node app.js",
+    "start": "node --import ./instrumentation.js app.js",
     "start:aspire": "docker run --rm -it -p 18888:18888 -p 4317:18889 -d --name aspire-dashboard -e DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS='true' mcr.microsoft.com/dotnet/aspire-dashboard",
     "stop:aspire": "docker stop aspire-dashboard",
     "start:jaeger": "docker run --rm --name jaeger -p:4317:4317 -p:16686:16686 jaegertracing/all-in-one",
@@ -20,6 +20,7 @@
     "@opentelemetry/api-logs": "^0.52.1",
     "@opentelemetry/exporter-logs-otlp-grpc": "^0.52.1",
     "@opentelemetry/sdk-logs": "^0.52.1",
+    "@opentelemetry/sdk-trace-base": "^1.25.1",
     "@types/node": "^22.0.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.4"
