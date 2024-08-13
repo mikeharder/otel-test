@@ -3,9 +3,25 @@
 // diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG);
 
 // Trace
-// import { trace } from "@opentelemetry/api";
-// import { BasicTracerProvider, ConsoleSpanExporter, SimpleSpanProcessor }  from "@opentelemetry/sdk-trace-base";
-// const tracerProvider = new BasicTracerProvider();
+import { trace } from "@opentelemetry/api";
+import {
+  BasicTracerProvider,
+  ConsoleSpanExporter,
+  SimpleSpanProcessor,
+} from "@opentelemetry/sdk-trace-base";
+
+const tracerProvider = new BasicTracerProvider();
+
+tracerProvider.addSpanProcessor(
+  new SimpleSpanProcessor(new ConsoleSpanExporter())
+);
+
+import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-grpc";
+tracerProvider.addSpanProcessor(
+  new SimpleSpanProcessor(new OTLPTraceExporter())
+);
+
+trace.setGlobalTracerProvider(tracerProvider);
 
 
 // Logs
@@ -15,14 +31,16 @@ import {
   ConsoleLogRecordExporter,
   SimpleLogRecordProcessor,
 } from "@opentelemetry/sdk-logs";
-import { OTLPLogExporter } from "@opentelemetry/exporter-logs-otlp-grpc";
 
 const loggerProvider = new LoggerProvider();
+
 loggerProvider.addLogRecordProcessor(
   new SimpleLogRecordProcessor(new ConsoleLogRecordExporter())
 );
-// loggerProvider.addLogRecordProcessor(
-//   new SimpleLogRecordProcessor(new OTLPLogExporter())
-// );
+
+import { OTLPLogExporter } from "@opentelemetry/exporter-logs-otlp-grpc";
+loggerProvider.addLogRecordProcessor(
+  new SimpleLogRecordProcessor(new OTLPLogExporter())
+);
 
 logs.setGlobalLoggerProvider(loggerProvider);
