@@ -6,6 +6,7 @@
     "build": "tsc",
     "start": "node --import ./instrumentation.js app.js",
     "start:aspire": "docker run --rm -it -p 18888:18888 -p 4317:18889 -d --name aspire-dashboard -e DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS='true' mcr.microsoft.com/dotnet/aspire-dashboard",
+    "restart:aspire": "npm run stop:aspire && npm run start:aspire",
     "stop:aspire": "docker stop aspire-dashboard",
     "start:jaeger": "docker run --rm --name jaeger -p:4317:4317 -p:16686:16686 jaegertracing/all-in-one",
     "stop:jaeger": "docker stop jaeger"
