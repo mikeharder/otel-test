@@ -8,18 +8,24 @@ async function main() {
   const logger = logs.getLogger(name, version);
 
   while (true) {
-    const span = await tracer.startActiveSpan("main loop", async (span: Span) => {
+    await tracer.startActiveSpan("main loop", async (parentSpan: Span) => {
+      const ctx = trace.setSpan(context.active(), parentSpan);
+
       // emit a log record
       logger.emit({
         severityNumber: SeverityNumber.INFO,
         severityText: "INFO",
         body: "this is a log record body",
-        attributes: { "log.type": "custom" }
+        attributes: { "log.type": "custom" },
+        context: ctx
       });
 
-      await new Promise((r) => setTimeout(r, 2000));
+      await tracer.startActiveSpan("sleep", {}, ctx, async (span: Span) => {
+        await new Promise((r) => setTimeout(r, 2000));
+        span.end();
+      });
 
-      span.end();
+      parentSpan.end();
     });
   }
 }
