@@ -33,9 +33,9 @@ async function main() {
       bunyanLogger.info("bunyan-info");
       winstonLogger.info("winston-info");
 
-      // ctx only needed when using BasicTracerProvider
       await tracer.startActiveSpan(
         "sleep",
+        // only needed when using BasicTracerProvider
         /*{}, ctx,*/
         async (span: Span) => {
           await new Promise((r) => setTimeout(r, 2000));
