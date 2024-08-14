@@ -4,7 +4,7 @@
 
 // Trace
 import {
-//  BasicTracerProvider,
+  //  BasicTracerProvider,
   ConsoleSpanExporter,
   SimpleSpanProcessor,
 } from "@opentelemetry/sdk-trace-base";
@@ -26,17 +26,15 @@ tracerProvider.addSpanProcessor(
 
 import { AzureMonitorTraceExporter } from "@azure/monitor-opentelemetry-exporter";
 try {
-  console.log("Adding AzureMonitorTraceExporter")
+  console.log("Adding AzureMonitorTraceExporter");
   tracerProvider.addSpanProcessor(
     new SimpleSpanProcessor(new AzureMonitorTraceExporter())
-  )
-}
-catch (error) {
+  );
+} catch (error) {
   console.log(error);
 }
 
 tracerProvider.register();
-
 
 // Logs
 import { logs } from "@opentelemetry/api-logs";
@@ -61,13 +59,23 @@ loggerProvider.addLogRecordProcessor(
 
 import { AzureMonitorLogExporter } from "@azure/monitor-opentelemetry-exporter";
 try {
-  console.log("Adding AzureMonitorLogExporter")
+  console.log("Adding AzureMonitorLogExporter");
   loggerProvider.addLogRecordProcessor(
     new SimpleLogRecordProcessor(new AzureMonitorLogExporter())
-  )
-}
-catch (error) {
+  );
+} catch (error) {
   console.log(error);
 }
 
 logs.setGlobalLoggerProvider(loggerProvider);
+
+// Instrumentations
+import { registerInstrumentations } from "@opentelemetry/instrumentation";
+import { BunyanInstrumentation } from "@opentelemetry/instrumentation-bunyan";
+registerInstrumentations({
+  instrumentations: [new BunyanInstrumentation()],
+});
+
+// Required for ESM packages
+import { register } from "module";
+register("@opentelemetry/instrumentation/hook.mjs", import.meta.url);

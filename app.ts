@@ -1,11 +1,13 @@
 import { Span, trace } from "@opentelemetry/api";
 import { logs, SeverityNumber } from "@opentelemetry/api-logs";
+import bunyan from "bunyan";
 
 async function main() {
   const name = "example";
   const version = "0.1.0";
   const tracer = trace.getTracer(name, version);
   const logger = logs.getLogger(name, version);
+  const bunyanLogger = bunyan.createLogger({name: "example"});
 
   while (true) {
     await tracer.startActiveSpan("main loop", async (parentSpan: Span) => {
@@ -21,6 +23,8 @@ async function main() {
         // Only needed when using BasicTracerProvider
         // context: ctx
       });
+
+      bunyanLogger.info("bunyan-info");
 
       // ctx only needed when using BasicTracerProvider
       await tracer.startActiveSpan("sleep", /*{}, ctx,*/ async (span: Span) => {
