@@ -72,8 +72,9 @@ logs.setGlobalLoggerProvider(loggerProvider);
 // Instrumentations
 import { registerInstrumentations } from "@opentelemetry/instrumentation";
 import { BunyanInstrumentation } from "@opentelemetry/instrumentation-bunyan";
+import { WinstonInstrumentation } from "@opentelemetry/instrumentation-winston";
 registerInstrumentations({
-  instrumentations: [new BunyanInstrumentation()],
+  instrumentations: [new BunyanInstrumentation(), new WinstonInstrumentation()],
 });
 
 // Required for ESM packages
