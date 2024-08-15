@@ -4,13 +4,11 @@
 
 // Trace
 import {
-  //  BasicTracerProvider,
   ConsoleSpanExporter,
   SimpleSpanProcessor,
 } from "@opentelemetry/sdk-trace-base";
 import { NodeTracerProvider } from "@opentelemetry/sdk-trace-node";
 
-// const tracerProvider = new BasicTracerProvider();
 const tracerProvider = new NodeTracerProvider();
 
 console.log("Adding ConsoleSpanExporter");

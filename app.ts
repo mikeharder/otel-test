@@ -2,6 +2,7 @@ import { Span, SpanStatusCode, trace } from "@opentelemetry/api";
 import { logs, SeverityNumber } from "@opentelemetry/api-logs";
 import bunyan from "bunyan";
 import winston from "winston";
+import { withSpan } from "./utils.js";
 
 const name = "example";
 const version = "0.1.0";
@@ -15,72 +16,48 @@ const winstonLogger = winston.createLogger({
 });
 
 async function throwCatch() {
-  await tracer.startActiveSpan("throwCatch", async (span: Span) => {
-    try {
+  try {
+    await withSpan(tracer, "throwCatch", async (span: Span) => {
       await new Promise((r) => setTimeout(r, 500));
       throw new Error("should be caught");
-    } catch (error) {
-      span.recordException(error as any);
-      span.setStatus({ code: SpanStatusCode.ERROR });
-    } finally {
-      span.end();
-    }
-  });
+    });
+  }
+  catch {
+  }
 }
 
 async function throwCatchRethrow() {
-  await tracer.startActiveSpan("throwCatchRethrow", async (span: Span) => {
-    try {
-      await new Promise((r) => setTimeout(r, 500));
-      throw new Error("should be re-thrown");
-    } catch (error) {
-      span.recordException(error as any);
-      span.setStatus({ code: SpanStatusCode.ERROR });
-      throw error;
-    } finally {
-      span.end();
-    }
+  await withSpan(tracer, "throwCatchRethrow", async (span: Span) => {
+    await new Promise((r) => setTimeout(r, 500));
+    throw new Error("should be re-thrown");
   });
 }
 
 async function main() {
   while (true) {
-    await tracer.startActiveSpan("main loop", async (span: Span) => {
-      try {
-        // Only needed when using BasicTracerProvider
-        // const ctx = trace.setSpan(context.active(), parentSpan);
+    await withSpan(tracer, "main loop", async (span: Span) => {
+      // emit a log record
+      logger.emit({
+        severityNumber: SeverityNumber.INFO,
+        severityText: "INFO",
+        body: "this is a log record body",
+        attributes: { "log.type": "custom" },
+      });
 
-        // emit a log record
-        logger.emit({
-          severityNumber: SeverityNumber.INFO,
-          severityText: "INFO",
-          body: "this is a log record body",
-          attributes: { "log.type": "custom" },
-          // Only needed when using BasicTracerProvider
-          // context: ctx
-        });
+      bunyanLogger.info("bunyan-info");
+      winstonLogger.info("winston-info");
 
-        bunyanLogger.info("bunyan-info");
-        winstonLogger.info("winston-info");
+      await withSpan(
+        tracer,
+        "sleep",
+        async (span: Span) => {
+          await new Promise((r) => setTimeout(r, 500));
+          span.end();
+        }
+      );
 
-        await tracer.startActiveSpan(
-          "sleep",
-          // only needed when using BasicTracerProvider
-          /*{}, ctx,*/
-          async (span: Span) => {
-            await new Promise((r) => setTimeout(r, 500));
-            span.end();
-          }
-        );
-
-        await throwCatch();
-        await throwCatchRethrow();
-      } catch (error) {
-        span.recordException(error as any);
-        span.setStatus({ code: SpanStatusCode.ERROR });
-      } finally {
-        span.end();
-      }
+      await throwCatch();
+      await throwCatchRethrow();
     });
   }
 }
