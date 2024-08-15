@@ -2,7 +2,7 @@ import { Span, SpanStatusCode, trace } from "@opentelemetry/api";
 import { logs, SeverityNumber } from "@opentelemetry/api-logs";
 import bunyan from "bunyan";
 import winston from "winston";
-import { withSpan } from "./utils.js";
+import { withSpan, withSpanSync } from "./utils.js";
 
 const name = "example";
 const version = "0.1.0";
@@ -20,6 +20,16 @@ async function throwCatch() {
     await withSpan(tracer, "throwCatch", async (span: Span) => {
       await new Promise((r) => setTimeout(r, 500));
       throw new Error("should be caught");
+    });
+  }
+  catch {
+  }
+}
+
+function throwCatchSync() {
+  try {
+    withSpanSync(tracer, "throwCatchSync", (span: Span) => {
+      throw new Error ("should be caught");
     });
   }
   catch {
@@ -55,6 +65,8 @@ async function main() {
           span.end();
         }
       );
+
+      throwCatchSync();
 
       await throwCatch();
       await throwCatchRethrow();
